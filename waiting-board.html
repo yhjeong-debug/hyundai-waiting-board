@@ -227,13 +227,10 @@ if (isAdmin) {
   document.getElementById('admin-actions').style.display = 'flex';
 }
 
-// init: 클라우드에서 먼저 로드, 없으면 기본값
-loadFromCloud().then(ok => {
-  if (!ok) {
-    initState();
-    render();
-  }
-});
+// init: 먼저 기본값으로 표시 후, 클라우드에서 덮어쓰기
+initState();
+render();
+loadFromCloud();
 
 // 배포용: 30분마다 자동 동기화
 if (!isAdmin) {
