@@ -13,6 +13,8 @@
   table { width: 100%; border-collapse: collapse; }
   thead th { background: #1d1d1f; color: #fff; padding: 14px 12px; font-size: 15px; font-weight: 600; }
   thead th:first-child { width: 100px; }
+  thead th:not(:first-child) { width: 310px; }
+  table { table-layout: fixed; }
   tbody td { padding: 0; border-bottom: 1px solid #e8e8ed; text-align: center; vertical-align: middle; }
   tbody td:first-child { font-weight: 600; font-size: 15px; color: #1d1d1f; background: #fafafa; padding: 12px 8px; }
   .slot { padding: 10px 6px; user-select: none; min-height: 48px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e8e8ed; }
@@ -59,12 +61,6 @@
   </table>
 </div>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot status-walkin-full"></div>워크인 가능(유산소+자세)</div>
-  <div class="legend-item"><div class="legend-dot status-reserved"></div>예약 완료</div>
-  <div class="legend-item"><div class="legend-dot status-walkin-cardio"></div>워크인 가능(유산소)</div>
-  <div class="legend-item"><div class="legend-dot status-unavailable"></div>예약 불가</div>
-</div>
 
 <div class="actions" id="admin-actions" style="display:none;">
   <button class="btn-save" onclick="saveState()">저장</button>
