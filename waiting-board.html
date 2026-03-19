@@ -97,7 +97,9 @@ const FILTERED = TIMES.filter(t => {
 });
 
 const COLS = ['1인', '2인'];
-const STORAGE_KEY = 'hyundai_waiting_board';
+const BLOB_ID = '019d0488-0098-7042-8d68-7c1f32d7b2b2';
+const BLOB_URL = `https://jsonblob.com/api/jsonBlob/${BLOB_ID}`;
+const POLL_INTERVAL = 5000; // 5초마다 동기화
 
 let state = {};
 
@@ -106,7 +108,7 @@ function initState() {
   FILTERED.forEach(t => {
     COLS.forEach(c => {
       const m = t.split(':')[1];
-      state[`${t}_${c}`] = m === '00' ? 1 : 2; // :00 = reserved, :30 = walkin-cardio
+      state[`${t}_${c}`] = m === '00' ? 1 : 2;
     });
   });
 }
@@ -137,31 +139,52 @@ function render() {
         const key = el.dataset.key;
         state[key] = ((state[key] || 0) + 1) % STATUSES.length;
         render();
+        saveToCloud();
       });
     });
   }
 }
 
+// 클라우드 저장 (관리자)
+function saveToCloud() {
+  fetch(BLOB_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(state)
+  }).then(() => showToast('저장됨'))
+    .catch(() => showToast('저장 실패'));
+}
+
+// 클라우드에서 불러오기
+function loadFromCloud() {
+  return fetch(BLOB_URL)
+    .then(r => r.json())
+    .then(data => {
+      if (data && !data.init) {
+        state = data;
+        render();
+        return true;
+      }
+      return false;
+    })
+    .catch(() => false);
+}
+
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  showToast('저장되었습니다');
+  saveToCloud();
 }
 
 function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    state = JSON.parse(saved);
-    render();
-    showToast('불러왔습니다');
-  } else {
-    showToast('저장된 데이터가 없습니다');
-  }
+  loadFromCloud().then(ok => {
+    showToast(ok ? '불러왔습니다' : '저장된 데이터가 없습니다');
+  });
 }
 
 function resetState() {
   if (!confirm('모든 슬롯을 초기화하시겠습니까?')) return;
   initState();
   render();
+  saveToCloud();
   showToast('초기화되었습니다');
 }
 
@@ -187,14 +210,18 @@ if (isAdmin) {
   document.getElementById('admin-actions').style.display = 'flex';
 }
 
-// init
-const saved = localStorage.getItem(STORAGE_KEY);
-if (saved) {
-  state = JSON.parse(saved);
-} else {
-  initState();
+// init: 클라우드에서 먼저 로드, 없으면 기본값
+loadFromCloud().then(ok => {
+  if (!ok) {
+    initState();
+    render();
+  }
+});
+
+// 배포용: 5초마다 자동 동기화
+if (!isAdmin) {
+  setInterval(() => loadFromCloud(), POLL_INTERVAL);
 }
-render();
 </script>
 </body>
 </html>
