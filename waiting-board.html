@@ -69,6 +69,10 @@
 </div>
 
 
+<div class="actions" id="refresh-action">
+  <button class="btn-load" onclick="manualRefresh()">최신화</button>
+</div>
+
 <div class="actions" id="admin-actions" style="display:none;">
   <button class="btn-save" onclick="saveState()">저장</button>
   <button class="btn-load" onclick="loadState()">불러오기</button>
@@ -195,6 +199,12 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 1500);
 }
 
+function manualRefresh() {
+  loadFromCloud().then(ok => {
+    showToast(ok ? '최신화 완료' : '변경사항 없음');
+  });
+}
+
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
@@ -218,9 +228,9 @@ loadFromCloud().then(ok => {
   }
 });
 
-// 배포용: 5초마다 자동 동기화
+// 배포용: 30분마다 자동 동기화
 if (!isAdmin) {
-  setInterval(() => loadFromCloud(), POLL_INTERVAL);
+  setInterval(() => loadFromCloud(), 30 * 60 * 1000);
 }
 </script>
 </body>
