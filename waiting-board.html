@@ -162,7 +162,10 @@ function saveToCloud() {
 // 클라우드에서 불러오기
 function loadFromCloud() {
   return fetch(API_URL)
-    .then(r => r.ok ? r.json() : null)
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(data => {
       if (data && Object.keys(data).length > 0) {
         state = data;
@@ -171,7 +174,11 @@ function loadFromCloud() {
       }
       return false;
     })
-    .catch(() => false);
+    .catch(e => {
+      console.error('loadFromCloud error:', e);
+      showToast('불러오기 실패: ' + e.message);
+      return false;
+    });
 }
 
 function saveState() {
