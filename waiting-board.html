@@ -153,10 +153,12 @@ function render() {
 function saveToCloud() {
   fetch(BLOB_URL, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify(state)
-  }).then(() => showToast('저장됨'))
-    .catch(() => showToast('저장 실패'));
+  }).then(r => {
+    if (r.ok) showToast('저장됨');
+    else showToast('저장 실패: ' + r.status);
+  }).catch(e => showToast('저장 실패: ' + e.message));
 }
 
 // 클라우드에서 불러오기
