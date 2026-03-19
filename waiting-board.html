@@ -101,9 +101,7 @@ const FILTERED = TIMES.filter(t => {
 });
 
 const COLS = ['1인', '2인'];
-const BLOB_ID = '019d0488-0098-7042-8d68-7c1f32d7b2b2';
-const BLOB_URL = `https://jsonblob.com/api/jsonBlob/${BLOB_ID}`;
-const POLL_INTERVAL = 5000; // 5초마다 동기화
+const API_URL = 'https://4vwrcdvf76i5kdtf5g4roaeihu0pspuy.lambda-url.ap-northeast-2.on.aws/';
 
 let state = {};
 
@@ -149,11 +147,11 @@ function render() {
   }
 }
 
-// 클라우드 저장 (관리자)
+// 클라우드 저장
 function saveToCloud() {
-  fetch(BLOB_URL, {
+  fetch(API_URL, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(state)
   }).then(r => {
     if (r.ok) showToast('저장됨');
@@ -163,10 +161,10 @@ function saveToCloud() {
 
 // 클라우드에서 불러오기
 function loadFromCloud() {
-  return fetch(BLOB_URL)
-    .then(r => r.json())
+  return fetch(API_URL)
+    .then(r => r.ok ? r.json() : null)
     .then(data => {
-      if (data && !data.init) {
+      if (data && Object.keys(data).length > 0) {
         state = data;
         render();
         return true;
