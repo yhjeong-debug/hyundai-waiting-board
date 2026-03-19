@@ -98,7 +98,8 @@ function initState() {
   state = {};
   FILTERED.forEach(t => {
     COLS.forEach(c => {
-      state[`${t}_${c}`] = 0; // default: walkin-full
+      const m = t.split(':')[1];
+      state[`${t}_${c}`] = m === '00' ? 3 : 2; // :00 = unavailable, :30 = walkin-cardio
     });
   });
 }
